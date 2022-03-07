@@ -1,4 +1,4 @@
-import { defaultAbiCoder, Interface } from '@ethersproject/abi'
+import { Interface } from '@ethersproject/abi'
 import { isAddress } from '@ethersproject/address'
 import { Contract } from '@ethersproject/contracts'
 import { TransactionResponse } from '@ethersproject/providers'
@@ -192,7 +192,8 @@ function useFormattedProposalCreatedLogs(
             } else {
               ;[name, types] = signature.substring(0, signature.length - 1).split('(')
             }
-            const decoded = defaultAbiCoder.decode(types.split(','), calldata)
+            const decoded = ['no', 'decoded', 'calldata']
+            //const decoded = defaultAbiCoder.decode(types.split(','), calldata)
             return {
               target,
               functionSig: name,
@@ -215,52 +216,37 @@ function countToIndices(count: number | undefined, skip = 0) {
 export function useAllProposalData(): { data: ProposalData[]; loading: boolean } {
   const { chainId } = useActiveWeb3React()
   const gov0 = useGovernanceV0Contract()
-  const gov1 = useGovernanceV1Contract()
-  const gov2 = useGovernanceBravoContract()
+  console.log('Using Governor addr:', gov0?.address)
 
   const proposalCount0 = useProposalCount(gov0)
-  const proposalCount1 = useProposalCount(gov1)
-  const proposalCount2 = useProposalCount(gov2)
 
   const gov0ProposalIndexes = useMemo(() => {
     return chainId === SupportedChainId.MAINNET ? V0_PROPOSAL_IDS : countToIndices(proposalCount0)
   }, [chainId, proposalCount0])
-  const gov1ProposalIndexes = useMemo(() => {
-    return chainId === SupportedChainId.MAINNET ? V1_PROPOSAL_IDS : countToIndices(proposalCount1)
-  }, [chainId, proposalCount1])
-  const gov2ProposalIndexes = useMemo(() => {
-    return countToIndices(proposalCount2, 8)
-  }, [proposalCount2])
 
   const proposalsV0 = useSingleContractMultipleData(gov0, 'proposals', gov0ProposalIndexes)
-  const proposalsV1 = useSingleContractMultipleData(gov1, 'proposals', gov1ProposalIndexes)
-  const proposalsV2 = useSingleContractMultipleData(gov2, 'proposals', gov2ProposalIndexes)
+  console.log('Proposal count:', proposalsV0.length)
 
   // get all proposal states
   const proposalStatesV0 = useSingleContractMultipleData(gov0, 'state', gov0ProposalIndexes)
-  const proposalStatesV1 = useSingleContractMultipleData(gov1, 'state', gov1ProposalIndexes)
-  const proposalStatesV2 = useSingleContractMultipleData(gov2, 'state', gov2ProposalIndexes)
 
   // get metadata from past events
   const formattedLogsV0 = useFormattedProposalCreatedLogs(gov0, gov0ProposalIndexes)
-  const formattedLogsV1 = useFormattedProposalCreatedLogs(gov1, gov1ProposalIndexes)
-  const formattedLogsV2 = useFormattedProposalCreatedLogs(gov2, gov2ProposalIndexes)
 
   const uni = useMemo(() => (chainId ? UNI[chainId] : undefined), [chainId])
+  console.log('Using UNI addr:', uni?.address)
 
   // early return until events are fetched
   return useMemo(() => {
-    const proposalsCallData = [...proposalsV0, ...proposalsV1, ...proposalsV2]
-    const proposalStatesCallData = [...proposalStatesV0, ...proposalStatesV1, ...proposalStatesV2]
-    const formattedLogs = [...(formattedLogsV0 ?? []), ...(formattedLogsV1 ?? []), ...(formattedLogsV2 ?? [])]
+    const proposalsCallData = proposalsV0
+    const proposalStatesCallData = proposalStatesV0
+    const formattedLogs = formattedLogsV0 ?? []
 
     if (
       !uni ||
       proposalsCallData.some((p) => p.loading) ||
       proposalStatesCallData.some((p) => p.loading) ||
-      (gov0 && !formattedLogsV0) ||
-      (gov1 && !formattedLogsV1) ||
-      (gov2 && !formattedLogsV2)
+      (gov0 && !formattedLogsV0)
     ) {
       return { data: [], loading: true }
     }
@@ -290,26 +276,12 @@ export function useAllProposalData(): { data: ProposalData[]; loading: boolean }
           startBlock,
           endBlock: parseInt(proposal?.result?.endBlock?.toString()),
           details: formattedLogs[i]?.details,
-          governorIndex: i >= proposalsV0.length + proposalsV1.length ? 2 : i >= proposalsV0.length ? 1 : 0,
+          governorIndex: 0,
         }
       }),
       loading: false,
     }
-  }, [
-    formattedLogsV0,
-    formattedLogsV1,
-    formattedLogsV2,
-    gov0,
-    gov1,
-    gov2,
-    proposalStatesV0,
-    proposalStatesV1,
-    proposalStatesV2,
-    proposalsV0,
-    proposalsV1,
-    proposalsV2,
-    uni,
-  ])
+  }, [formattedLogsV0, gov0, proposalStatesV0, proposalsV0, uni])
 }
 
 export function useProposalData(governorIndex: number, id: string): ProposalData | undefined {
