@@ -1,8 +1,8 @@
 import { Trans } from '@lingui/macro'
-import { SupportedChainId } from 'constants/chains'
 import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import styled from 'styled-components/macro'
 import { ThemedText } from 'theme'
+import { isL1ChainId } from 'utils/chains'
 
 const EmptyProposals = styled.div`
   border: 1px solid ${({ theme }) => theme.text4};
@@ -38,7 +38,7 @@ const EmptyState = ({ HeaderContent, SubHeaderContent }: EmptyStateProps) => (
 
 export default function ProposalEmptyState() {
   const { chainId } = useActiveWeb3React()
-  if (chainId && chainId !== SupportedChainId.MAINNET) {
+  if (!isL1ChainId(chainId)) {
     return (
       <EmptyState
         HeaderContent={() => <Trans>Please connect to Layer 1 Ethereum</Trans>}
