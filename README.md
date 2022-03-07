@@ -18,6 +18,8 @@ PORT=3001 yarn start
 ```
 cd governance
 yarn
-npx hardhat run scripts/deploy.js
+npx hardhat deploy
+npx hardhat giveall
+npx hardhat powers
 ```
 
