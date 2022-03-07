@@ -20,4 +20,7 @@ export const INFURA_NETWORK_URLS: { [key in SupportedChainId]: string } = {
   [SupportedChainId.ARBITRUM_RINKEBY]: `https://arbitrum-rinkeby.infura.io/v3/${INFURA_KEY}`,
   [SupportedChainId.POLYGON]: `https://polygon-mainnet.infura.io/v3/${INFURA_KEY}`,
   [SupportedChainId.POLYGON_MUMBAI]: `https://polygon-mumbai.infura.io/v3/${INFURA_KEY}`,
+  [SupportedChainId.KLAYTN]: `https://public-node-api.klaytnapi.com/v1/cypress`,
+  [SupportedChainId.KLAYTN_BAOBAB]: `https://public-node-api.klaytnapi.com/v1/baobab`,
+  [SupportedChainId.KLAYTN_RC]: `http://3.34.31.114:8551`,
 }

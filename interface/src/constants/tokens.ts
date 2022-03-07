@@ -46,6 +46,27 @@ export const DAI_OPTIMISM = new Token(
   'DAI',
   'Dai stable coin'
 )
+export const USDC_KLAYTN = new Token(
+  SupportedChainId.KLAYTN,
+  '0x754288077d0ff82af7a5317c7cb8c444d421d103',
+  6,
+  'USDC',
+  'USD Coin'
+)
+export const USDC_KLAYTN_BAOBAB = new Token(
+  SupportedChainId.KLAYTN_BAOBAB,
+  '0x000000000000000000000000000000000000dead',
+  6,
+  'USDC',
+  'USD Coin'
+)
+export const USDC_KLAYTN_RC = new Token(
+  SupportedChainId.KLAYTN_RC,
+  '0x000000000000000000000000000000000000dead',
+  6,
+  'USDC',
+  'USD Coin'
+)
 export const USDC: { [chainId in SupportedChainId]: Token } = {
   [SupportedChainId.MAINNET]: USDC_MAINNET,
   [SupportedChainId.ARBITRUM_ONE]: USDC_ARBITRUM,
@@ -58,6 +79,9 @@ export const USDC: { [chainId in SupportedChainId]: Token } = {
   [SupportedChainId.RINKEBY]: USDC_RINKEBY,
   [SupportedChainId.KOVAN]: USDC_KOVAN,
   [SupportedChainId.ROPSTEN]: USDC_ROPSTEN,
+  [SupportedChainId.KLAYTN]: USDC_KLAYTN,
+  [SupportedChainId.KLAYTN_BAOBAB]: USDC_KLAYTN_BAOBAB,
+  [SupportedChainId.KLAYTN_RC]: USDC_KLAYTN_RC,
 }
 export const DAI_POLYGON = new Token(
   SupportedChainId.POLYGON,
