@@ -13,3 +13,11 @@ yarn
 PORT=3001 yarn start
 ```
 
+## Deploy governance
+
+```
+cd governance
+yarn
+npx hardhat run scripts/deploy.js
+```
+
