@@ -31,8 +31,12 @@ task("powers", "Get token balances and voting powers", async () => {
   for (const account of accounts) {
     var addr = account.address;
     var balance = await token.balanceOf(addr);
-    var share = (balance * 100 / total).toFixed(2);
-    console.log('Account', account.address, share, '% =', balance / 1e18)
+    var balanceShare = (balance * 100 / total).toFixed(2);
+    var power = await token.getCurrentVotes(addr);
+    var powerShare = (power * 100 / total).toFixed(2);
+    console.log('Account', account.address,
+                'balance', balanceShare, '% =', balance / 1e18,
+                'power', powerShare, '% =', power / 1e18)
   }
 });
 
@@ -41,10 +45,12 @@ task("give", "Give token")
 .addOptionalParam("pct", "Percent", "1")
 .setAction(async ({ idx, pct }) => {
   var tx = await giveToken(idx, pct);
+  var receipt = await tx.wait();
+  console.log('Transfer to', idx, 'status', receipt.status);
 });
 
 task("giveall", "Give token to everyone")
-.setAction(async ({ idx, pct }) => {
+.setAction(async () => {
   const shares = testShares;
   var waits = [];
   for (var i=0; i<10; i++) {
@@ -70,6 +76,49 @@ async function giveToken(idx, pct) {
   var tx = await token.transfer(dst, rawAmount);
   return tx;
 }
+
+task("delegate", "Delegate power")
+.addOptionalParam("from", "Sender account index", "1")
+.addOptionalParam("to", "Receiver account index", "1")
+.setAction(async ({ from, to }) => {
+  const token = await attachToken();
+  const accounts = await ethers.getSigners();
+
+  var sender = accounts[from];
+  var receiver = accounts[to];
+  var tx = await token.connect(sender).delegate(receiver.address);
+  console.log('Delegate', from, '->', to);
+  var receipt = await tx.wait();
+  console.log('Delegate', from, '->', to, 'status', receipt.status);
+});
+
+task("propose", "Create new proposal")
+.setAction(async () => {
+  const token = await attachToken();
+  const governor = await attachGovernor();
+  const accounts = await ethers.getSigners();
+
+  var admin = accounts[0];
+  var proposer = accounts[2];
+
+  //var targetTx = await token.populateTransaction
+  //  .transferFrom(ethers.constants.AddressZero, proposer.address, 7e18);
+
+  var targets = [ethers.constants.AddressZero];
+  var values = [0];
+  var signatures = ['0x56785678'];
+  var calldatas = ['0x12341234'];
+  var description = 'test proposal';
+
+  var ret = await governor.connect(proposer).callStatic.propose(
+    targets, values, signatures, calldatas, description);
+  console.log("When successful, proposal ID will be", ret.toString());
+
+  var tx = await governor.connect(proposer).propose(
+    targets, values, signatures, calldatas, description);
+  var receipt = await tx.wait();
+  console.log('Propose by', proposer.address, 'status', receipt.status);
+});
 
 task("deploy", "Deploy all contracts")
 .addOptionalParam("target", "A contract name or 'all'", "all")
@@ -123,6 +172,17 @@ async function attachToken() {
   const Token = await hre.ethers.getContractFactory("Uni");
   const token = await Token.attach(state.token.address);
   return token;
+}
+
+async function attachGovernor() {
+  const state = readState();
+  if (!state.governor) {
+    console.log('Need to deploy first');
+    return;
+  }
+  const Governor = await hre.ethers.getContractFactory("GovernorAlpha");
+  const governor = await Governor.attach(state.governor.address);
+  return governor;
 }
 
 function readState() {
