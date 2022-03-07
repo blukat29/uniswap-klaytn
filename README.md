@@ -5,3 +5,11 @@ Modified to support [Klaytn](https://github.com/klaytn/klaytn) network.
 
 Unlike original source, this repository contains all libraries in this monorepo.
 
+## Run interface
+
+```
+cd interface
+yarn
+PORT=3001 yarn start
+```
+
