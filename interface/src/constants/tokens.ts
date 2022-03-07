@@ -230,6 +230,13 @@ export const UNI: { [chainId: number]: Token } = {
   [SupportedChainId.ROPSTEN]: new Token(SupportedChainId.ROPSTEN, UNI_ADDRESS[3], 18, 'UNI', 'Uniswap'),
   [SupportedChainId.GOERLI]: new Token(SupportedChainId.GOERLI, UNI_ADDRESS[5], 18, 'UNI', 'Uniswap'),
   [SupportedChainId.KOVAN]: new Token(SupportedChainId.KOVAN, UNI_ADDRESS[42], 18, 'UNI', 'Uniswap'),
+  [SupportedChainId.KLAYTN_RC]: new Token(
+    SupportedChainId.KLAYTN_RC,
+    UNI_ADDRESS[SupportedChainId.KLAYTN_RC],
+    18,
+    'UNI',
+    'Uniswap'
+  ),
 }
 
 export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token } = {
