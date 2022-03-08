@@ -120,6 +120,47 @@ task("propose", "Create new proposal")
   console.log('Propose by', proposer.address, 'status', receipt.status);
 });
 
+task("status", "Get proposal status")
+.addOptionalParam("id", "Proposal id", "1")
+.setAction(async ({ id }) => {
+  const governor = await attachGovernor();
+  const accounts = await ethers.getSigners();
+
+  var p = await governor.proposals(id);
+  console.log(p);
+
+  var s = await governor.state(id)
+  console.log('status', ['Pending', 'Active', 'Cancelled', 'Defeated',
+                         'Succeeded', 'Queued', 'Expired', 'Executed'][s]);
+  for (const account of accounts) {
+    var r = await governor.getReceipt(id, account.address);
+    console.log(account.address,
+      'voted?', r.hasVoted, 'yesno', r.support, 'votes', r.votes.toString());
+  }
+});
+
+task("vote", "Vote for a proposal")
+.addOptionalParam("id", "Proposal id", "1")
+.addOptionalParam("idx", "Account index", "1")
+.addOptionalParam("yesno", "yes/no (true/false)", "yes")
+.setAction(async ({ id, idx, yesno }) => {
+  const token = await attachToken();
+  const governor = await attachGovernor();
+  const accounts = await ethers.getSigners();
+
+  var addr = accounts[idx].address;
+
+  var prop = await governor.proposals(id);
+  var power = await token.getPriorVotes(addr, prop.startBlock);
+  console.log(addr, 'has', power.toString()/1e18, 'votes');
+
+  var support = (yesno == 'yes' || yesno == 'true');
+  var ret =  await governor.connect(accounts[idx]).callStatic.castVote(id, support);
+  var tx = await governor.connect(accounts[idx]).castVote(id, support);
+  var receipt = await tx.wait();
+  console.log('Voted for proposal', prop.id.toString(), 'status', receipt.status);
+})
+
 task("deploy", "Deploy all contracts")
 .addOptionalParam("target", "A contract name or 'all'", "all")
 .setAction(async ({ target }) => {
