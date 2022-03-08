@@ -47,7 +47,7 @@ export const SWAP_ROUTER_ADDRESSES: AddressMap = constructSameAddressMap('0x68b3
  */
 export const GOVERNANCE_ALPHA_V0_ADDRESSES: AddressMap = {
   ...constructSameAddressMap('0x5e4be8Bc9637f0EAA1A755019e06A68ce081D58F'),
-  [SupportedChainId.KLAYTN_RC]: '0xd9b98E1f9a2A5881674de10F82BE4efAC16BE348',
+  [SupportedChainId.KLAYTN_RC]: '0x1d75463ce7F61E829822261F5D85171668Efb6D4',
 }
 /**
  * The older V1 governance address
