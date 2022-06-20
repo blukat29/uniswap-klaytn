@@ -5,14 +5,6 @@ Modified to support [Klaytn](https://github.com/klaytn/klaytn) network.
 
 Unlike original source, this repository contains all libraries in this monorepo.
 
-## Run interface
-
-```
-cd interface
-yarn
-PORT=3001 yarn start
-```
-
 ## Deploy governance
 
 ```
@@ -21,5 +13,15 @@ yarn
 npx hardhat deploy
 npx hardhat giveall
 npx hardhat powers
+npx hardhat propose
 ```
 
+## Run interface
+
+```
+cd interface
+yarn
+PORT=3001 yarn start
+```
+
+Now go to http://localhost:3001/#/vote. Do not access other menus.
