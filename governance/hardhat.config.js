@@ -216,17 +216,14 @@ task("deploy", "Deploy all contracts")
     state['governor'] = { address: governor.address };
   }
 
-  writeState(state);
-});
+  if (target == 'all' || target == 'multicall') {
+    const Multicall = await hre.ethers.getContractFactory("UniswapInterfaceMulticall");
+    const multicall = await Multicall.deploy();
+    await multicall.deployed();
+    console.log('Multicall deployed at', multicall.address);
+    state['multicall'] = { address: multicall.address };
+  }
 
-task("multicall", "Deploy multicall contract")
-.setAction(async () => {
-  const Multicall = await hre.ethers.getContractFactory("UniswapInterfaceMulticall");
-  const multicall = await Multicall.deploy();
-  await multicall.deployed();
-  console.log('Multicall deployed at', multicall.address);
-  var state = readState();
-  state['multicall'] = { address: multicall.address };
   writeState(state);
 });
 
