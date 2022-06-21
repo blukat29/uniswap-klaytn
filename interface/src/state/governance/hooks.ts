@@ -41,7 +41,7 @@ const { abi: GOVERNANCE_ABI } = GovernorAlphaJson
 const { abi: UNI_ABI } = UniJson
 
 function useGovernanceV0Contract(): Contract | null {
-  return useContract(GOVERNANCE_ALPHA_V0_ADDRESSES, GOVERNANCE_ABI, false)
+  return useContract(GOVERNANCE_ALPHA_V0_ADDRESSES, GOVERNANCE_ABI, true)
 }
 
 function useGovernanceV1Contract(): Contract | null {
@@ -49,10 +49,10 @@ function useGovernanceV1Contract(): Contract | null {
 }
 
 function useGovernanceBravoContract(): Contract | null {
-  return useContract(GOVERNANCE_BRAVO_ADDRESSES, GOVERNOR_BRAVO_ABI, true)
+  return useContract(GOVERNANCE_BRAVO_ADDRESSES, GOVERNOR_BRAVO_ABI, false)
 }
 
-const useLatestGovernanceContract = useGovernanceBravoContract
+const useLatestGovernanceContract = useGovernanceV0Contract
 
 export function useUniContract() {
   const { chainId } = useActiveWeb3React()
