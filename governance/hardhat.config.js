@@ -53,13 +53,13 @@ task("giveall", "Give token to everyone")
 .setAction(async () => {
   const shares = testShares;
   var waits = [];
-  for (var i=0; i<10; i++) {
+  for (var i=0; i<shares.length; i++) {
     var tx = await giveToken(i, shares[i]);
     waits.push(tx.wait());
   }
 
   var receipts = await Promise.all(waits);
-  for (var i=0; i<10; i++) {
+  for (var i=0; i<shares.length; i++) {
     console.log('Transfer to', i, 'status', receipts[i].status);
   }
 });
@@ -92,6 +92,21 @@ task("delegate", "Delegate power")
   console.log('Delegate', from, '->', to, 'status', receipt.status);
 });
 
+task("delegates", "Delegate powers")
+.setAction(async () => {
+  const token = await attachToken();
+  const accounts = await ethers.getSigners();
+
+  for (const account of accounts) {
+    var sender = account;
+    var receiver = account;
+    var tx = await token.connect(sender).delegate(receiver.address);
+    console.log('Delegate', sender.address, '->', sender.address);
+    var receipt = await tx.wait();
+    console.log('Delegate', sender.address, '->', sender.address, 'status', receipt.status);
+  }
+});
+
 task("propose", "Create new proposal")
 .setAction(async () => {
   const token = await attachToken();
@@ -99,7 +114,7 @@ task("propose", "Create new proposal")
   const accounts = await ethers.getSigners();
 
   var admin = accounts[0];
-  var proposer = accounts[2];
+  var proposer = accounts[1];
 
   //var targetTx = await token.populateTransaction
   //  .transferFrom(ethers.constants.AddressZero, proposer.address, 7e18);
@@ -204,6 +219,17 @@ task("deploy", "Deploy all contracts")
   writeState(state);
 });
 
+task("multicall", "Deploy multicall contract")
+.setAction(async () => {
+  const Multicall = await hre.ethers.getContractFactory("UniswapInterfaceMulticall");
+  const multicall = await Multicall.deploy();
+  await multicall.deployed();
+  console.log('Multicall deployed at', multicall.address);
+  var state = readState();
+  state['multicall'] = { address: multicall.address };
+  writeState(state);
+});
+
 async function attachToken() {
   const state = readState();
   if (!state.token) {
@@ -276,7 +302,7 @@ const hardhatAccounts = testPrivateKeys.map(priv => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  defaultNetwork: 'precypress',
+  defaultNetwork: 'baobab',
   networks: {
     precypress: {
       url: 'http://3.34.31.114:8551',
@@ -286,7 +312,7 @@ module.exports = {
       accounts: testPrivateKeys,
     },
     baobab: {
-      url: 'https://public-node-api.klaytnapi.com/v1/baobab',
+      url: 'https://baobab01.fandom.finance/',
       chainId: 1001,
       accounts: testPrivateKeys,
     },
@@ -295,9 +321,19 @@ module.exports = {
     },
   },
   solidity: {
-    version: '0.5.16',
-    settings: {
-      optimizer: { enabled: true, runs: 200 },
-    },
+    compilers: [
+      {
+        version: '0.8.14',
+        settings: {
+          optimizer: { enabled: true, runs: 200 },
+        },
+      },
+      {
+        version: '0.5.16',
+        settings: {
+          optimizer: { enabled: true, runs: 200 },
+        },
+      },
+    ],
   },
 };
